@@ -25,3 +25,6 @@ Only if this run created the `uproot-mcp` entry, inspect it with `codex mcp get 
 
 ## Validation limits
 Local automated checks validate rendering, failure handling, and connector behavior. Hook enforcement and the complete fresh-session Codex journey must be rehearsed on the corporate machine. No live upload is needed for the automated tests.
+
+## Expectations for the user prompt
+Use the included fictional sample for the baseline run. The README describes the external scoring step before setup instructions and distinguishes it from viewing the local dashboard. No local-only scorer is provided. Client approval may still be required; repository wording cannot grant user permission or suppress that review. A stopped run remains incomplete.
