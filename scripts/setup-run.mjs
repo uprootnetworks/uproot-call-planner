@@ -23,12 +23,8 @@ export async function setupAndRun({ runCodex = codex, score, csv, launcher = fil
       throw Error('Existing Uproot registration does not match this checkout or is disabled. It was not changed; no upload attempted.');
     }
   }
-  if (matches.length) verify();
-  else {
-    emit('Registering uproot-mcp with Codex.');
-    runCodex(['add', 'uproot-mcp', '--', process.execPath, launcher]);
-    verify();
-  }
+  if (!matches.length) throw Error('Uproot is not registered. Complete the README configuration edit first. No settings changed or upload attempted.');
+  verify();
   emit('Registration verified. Calling prioritize_prospects through a temporary MCP client; prospect records will be sent to Uproot.');
   const result = await score(csv, `PLANNER-${randomUUID()}`);
   const html = render(result);

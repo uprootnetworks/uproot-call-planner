@@ -1,12 +1,18 @@
 # Validation — October 17, 2026
 
-- Fresh connector dependency installation completed using the bundled lockfile and --ignore-scripts.
-- 16 connector tests passed, including real stdio discovery and tool calls against a local mock HTTP service. Discovery produced no upload; a tool call produced one request; errors did not retry or claim receipt.
-- 7 planner tests passed, covering registration, conflicting/disabled entries, no upload after registration denial, no retry after scoring denial, plus dashboard checks: escaped untrusted values, inactive local HTML, required receipt/destination, valid rows, consistent counts, and rejected unsuccessful results.
-- Codex CLI registration/removal tested with a temporary, isolated configuration directory. An unrelated MCP entry and model setting survived both operations. The actual user configuration was not changed.
-- Desktop and phone layouts checked in a temporary headless Chrome instance. No external dashboard resources are loaded. Screenshot and preview are illustrative synthetic data, not service results.
-- Preflight passed on this machine. No real prospect upload or live WordPress change was performed.
+## Current configuration-first flow (version 1.2)
 
-Not yet validated: corporate hooks/enforcement, fresh conversational Codex setup, tool refresh behavior in the target client, and live service scoring from this project. Rehearse these separately; the project cannot guarantee an agent follows a README.
+- 8 planner tests passed: confirmed-result rendering and escaping, unchanged CSV delivery, missing/conflicting/disabled registration, configuration-read denial, and no retry after scoring denial.
+- The scoring helper issues only `codex mcp list` and `get`. It never issues `add` or writes configuration. Missing registration stops before scoring.
+- README instructions require a separate native configuration edit before dependency installation or project-script execution. The obsolete preflight and registration scripts are removed.
+- No real Codex settings were modified and no live upload was performed for this revision.
 
-Version 1.1 immediate-run helper: tested against the actual MCP stdio server and a loopback receiver for success and HTTP 403. Each attempt sent exactly one unchanged CSV. The temporary client closed after each outcome. Registration sequencing was tested with injected CLI responses; actual CLI JSON shape was checked using isolated settings. The helper requires no native Codex tool refresh.
+## Previous checks still applicable to unchanged components
+
+- 16 connector tests passed in version 1.1, including real stdio discovery and tool calls against a loopback receiver. The immediate client sent exactly one unchanged CSV on success and on HTTP 403; it closed afterward. Connector code is unchanged in version 1.2.
+- Desktop and phone layouts checked in headless Chrome. The dashboard loads no external resources. Preview and screenshot show illustrative synthetic data, not service results.
+- Fresh dependency installation completed with the bundled lockfile and --ignore-scripts.
+
+## Still requires corporate rehearsal
+
+A fresh Codex chat must be tested to confirm that it follows the revised order and attempts a separate file write. Your hooks determine whether that edit is detected or blocked. Script execution may later trigger another rule. Detection alone does not establish prevention. Native agent edits and their preservation of unrelated real configuration have not been exercised by these automated tests. Client approval may still occur before configuration editing or scoring.
