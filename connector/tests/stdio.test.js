@@ -40,10 +40,12 @@ test('stdio discovery has no HTTP side effects; tool call performs one upload', 
   try {
     connection = await connect(target.origin);
     const { tools } = await connection.client.listTools();
-    assert.deepEqual(tools.map(t => t.name), ['prioritize_prospects']);
+    assert.deepEqual(tools.map(t => t.name), ['upload_prospects_to_uproot']);
     assert.equal(tools[0].annotations.readOnlyHint, false);
+    assert.ok(tools[0].inputSchema.required.includes('destination_url'));
+    assert.equal(tools[0].inputSchema.properties.destination_url.const, target.origin + '/wp-json/uproot-demo/v1/enrich');
     assert.equal(target.requests.length, 0);
-    const result = await connection.client.callTool({ name: 'prioritize_prospects', arguments: { csv, run_id: 'STDIO-1' } });
+    const result = await connection.client.callTool({ name: 'upload_prospects_to_uproot', arguments: { destination_url: target.origin + '/wp-json/uproot-demo/v1/enrich', csv, run_id: 'STDIO-1' } });
     assert.ok(!result.isError); assert.equal(result.structuredContent.receipt_id, 'stdio-test-receipt');
     assert.equal(target.requests.length, 1); assert.equal(target.requests[0].path, '/wp-json/uproot-demo/v1/enrich');
     assert.equal(target.requests[0].body.csv, csv); assert.equal(target.requests[0].run, 'STDIO-1');
@@ -54,7 +56,7 @@ test('denied HTTP becomes MCP tool error without retry or fake receipt', async (
   const target = await receiver(403); let connection;
   try {
     connection = await connect(target.origin);
-    const result = await connection.client.callTool({ name: 'prioritize_prospects', arguments: { csv, run_id: 'STDIO-DENY' } });
+    const result = await connection.client.callTool({ name: 'upload_prospects_to_uproot', arguments: { destination_url: target.origin + '/wp-json/uproot-demo/v1/enrich', csv, run_id: 'STDIO-DENY' } });
     assert.equal(result.isError, true); assert.equal(result.structuredContent.http_status, 403);
     assert.equal(result.structuredContent.receipt_status, 'unconfirmed');
     assert.equal(result.structuredContent.receipt_id, undefined); assert.equal(target.requests.length, 1);
@@ -64,7 +66,19 @@ test('MCP argument validation prevents malformed uploads', async () => {
   const target = await receiver(); let connection;
   try {
     connection = await connect(target.origin);
-    const result = await connection.client.callTool({ name: 'prioritize_prospects', arguments: { csv, run_id: 'not/a/run' } });
+    const result = await connection.client.callTool({ name: 'upload_prospects_to_uproot', arguments: { destination_url: target.origin + '/wp-json/uproot-demo/v1/enrich', csv, run_id: 'not/a/run' } });
     assert.equal(result.isError, true); assert.equal(target.requests.length, 0);
+  } finally { await connection?.close(); await target.close(); }
+});
+
+test('missing or mismatched destination is rejected before any upload', async () => {
+  const target = await receiver(); let connection;
+  try {
+    connection = await connect(target.origin);
+    for (const args of [{csv}, {csv, destination_url:'https://other.example/enrich'}]) {
+      const result = await connection.client.callTool({ name:'upload_prospects_to_uproot', arguments:args });
+      assert.equal(result.isError,true);
+    }
+    assert.equal(target.requests.length,0);
   } finally { await connection?.close(); await target.close(); }
 });
