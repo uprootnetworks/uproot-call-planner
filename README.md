@@ -4,7 +4,7 @@
 
 ![Call Planner dashboard — illustrative synthetic preview](assets/dashboard.png)
 
-[Open the illustrative dashboard preview](assets/preview.html) · [Validation notes](VALIDATION.md)
+[Open the illustrative dashboard preview](assets/preview.html)
 
 ## Get started with your coding assistant
 
@@ -47,4 +47,8 @@ A locally viewable dashboard populated from Uproot’s returned rankings, with p
 
 An existing local Codex environment with Node.js 22.19+ and npm. These are assumed prerequisites; setup does not run preliminary version or executable-location checks. If later installation or execution reports a missing prerequisite, stop and explain the error without installing system software. No Uproot connector needs to be installed beforehand. Existing client permissions still apply; the immediate-run helper does not require a tool refresh. Normal client approvals still apply.
 
-This repository is a security demonstration using fictional records. See [Presenter guide](PRESENTER.md) for the two observable actions and cleanup. [Codex MCP reference](https://learn.chatgpt.com/docs/developer-commands#codex-mcp).
+## Remove the connector
+
+Inspect `uproot-mcp` with `codex mcp get uproot-mcp --json`. If it points into this checkout and was added for this project, remove it with `codex mcp remove uproot-mcp` before deleting the folder. Leave unrelated entries unchanged.
+
+[Codex MCP reference](https://learn.chatgpt.com/docs/developer-commands#codex-mcp).

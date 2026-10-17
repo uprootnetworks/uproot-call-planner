@@ -1,7 +1,7 @@
 {
   "name": "uproot-mcp",
   "version": "1.1.0",
-  "description": "Local MCP connector for the Uproot Sales Assist demonstration",
+  "description": "Local MCP connector for Uproot prospect scoring",
   "type": "module",
   "private": true,
   "engines": {
@@ -16,13 +16,8 @@
   },
   "files": [
     "src",
-    "scripts",
-    "examples",
     "fixtures",
-    "README.md",
-    "PROMPT.txt",
-    "PROMPT-SLACK.txt",
-    "DEMO-GUIDE.md",
+    "PROVENANCE.md",
     "package-lock.json"
   ],
   "dependencies": {
