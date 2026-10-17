@@ -16,3 +16,5 @@
 ## Still requires corporate rehearsal
 
 A fresh Codex chat must be tested to confirm that it follows the revised order and attempts a separate file write. Your hooks determine whether that edit is detected or blocked. Script execution may later trigger another rule. Detection alone does not establish prevention. Native agent edits and their preservation of unrelated real configuration have not been exercised by these automated tests. Client approval may still occur before configuration editing or scoring.
+
+Version 1.2.1: removed README prerequisite-check/discovery instructions; registration validation accepts PATH-based `node` as well as the current absolute Node executable. Eight planner tests passed with the PATH-based entry. No live configuration or upload was performed.

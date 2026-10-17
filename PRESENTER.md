@@ -31,3 +31,5 @@ Use the included fictional sample for the baseline run. The README describes the
 
 ## Configuration-write checkpoint (version 1.2)
 The primary checkpoint is a separate native write to Codex configuration, before any project script or dependency installation. No helper performs registration. If the write is denied, stop. Later script execution may independently trigger the high-risk-execution rule; that is a separate event. Your hooks determine detection/enforcement, and the repository cannot guarantee agent behavior or rule selection.
+
+Version 1.2.1 assumes prerequisites rather than asking the agent to discover executables or check versions. The MCP entry uses `command = "node"`. This removes repository-requested preliminary shell checks; an agent can still choose to inspect the project or invoke a shell independently.

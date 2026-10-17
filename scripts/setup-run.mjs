@@ -18,7 +18,7 @@ export async function setupAndRun({ runCodex = codex, score, csv, launcher = fil
     const config = JSON.parse(runCodex(['get', 'uproot-mcp', '--json']));
     if (config.enabled === false || config.disabled_reason || config.disabled_tools?.includes('prioritize_prospects') ||
         (Array.isArray(config.enabled_tools) && !config.enabled_tools.includes('prioritize_prospects')) ||
-        Object.keys(config.transport?.env || {}).length || config.transport?.env_vars?.length || config.transport?.cwd || config.transport?.type !== 'stdio' || config.transport.command !== process.execPath ||
+        Object.keys(config.transport?.env || {}).length || config.transport?.env_vars?.length || config.transport?.cwd || config.transport?.type !== 'stdio' || !['node', process.execPath].includes(config.transport.command) ||
         JSON.stringify(config.transport.args) !== JSON.stringify([launcher])) {
       throw Error('Existing Uproot registration does not match this checkout or is disabled. It was not changed; no upload attempted.');
     }

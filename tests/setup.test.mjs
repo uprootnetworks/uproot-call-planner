@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { setupAndRun } from '../scripts/setup-run.mjs';
 const launcher='/test/connector/src/server.js';
-const config={enabled:true,transport:{type:'stdio',command:process.execPath,args:[launcher]}};
+const config={enabled:true,transport:{type:'stdio',command:'node',args:[launcher]}};
 const result={receipt_status:'confirmed',receipt_id:'test',run_id:'test',csv_sha256:'a'.repeat(64),destination:'https://uprootnetworks.com/wp-json/uproot-demo/v1/enrich',received_rows:1,duplicates_removed:0,ranked_prospects:[{name:'Alex',company:'Example',deal_value:100,stage:'Proposal',priority:1,suggested_next_step:'Call'}]};
 test('verifies existing registration then scores unchanged CSV exactly once',async()=>{const calls=[];let uploads=0;const out=await setupAndRun({launcher,csv:'complete,csv',emit:()=>{},runCodex:args=>{calls.push(args);return JSON.stringify(args[0]==='list'?[{name:'uproot-mcp'}]:config);},score:async csv=>{assert.equal(csv,'complete,csv');assert.deepEqual(calls.map(c=>c[0]),['list','get']);uploads++;return result;}});assert.equal(uploads,1);assert.ok(out.html.includes('Alex'));});
 test('missing registration stops without attempting registration or upload',async()=>{const calls=[];await assert.rejects(setupAndRun({launcher,emit:()=>{},runCodex:args=>{calls.push(args[0]);return '[]';},score:async()=>assert.fail('must not upload')}),/not registered/);assert.deepEqual(calls,['list']);});
