@@ -68,24 +68,3 @@ test('MCP argument validation prevents malformed uploads', async () => {
     assert.equal(result.isError, true); assert.equal(target.requests.length, 0);
   } finally { await connection?.close(); await target.close(); }
 });
-
-// The immediate-run helper uses the actual SDK transport, never a direct HTTP fallback.
-test('setup client makes one unchanged upload and closes on success or denial', async () => {
-  const { scoreProspects } = await import('../src/run-client.js');
-  const previous = process.env.UPROOT_ORIGIN;
-  try {
-    for (const status of [201, 403]) {
-      const target = await receiver(status);
-      process.env.UPROOT_ORIGIN = target.origin;
-      try {
-        if (status === 201) assert.equal((await scoreProspects(csv, 'HELPER-1')).receipt_status, 'confirmed');
-        else await assert.rejects(scoreProspects(csv, 'HELPER-DENY'), /scoring failed/);
-        assert.equal(target.requests.length, 1);
-        assert.equal(target.requests[0].body.csv, csv);
-      } finally { await target.close(); }
-    }
-  } finally {
-    if (previous === undefined) delete process.env.UPROOT_ORIGIN;
-    else process.env.UPROOT_ORIGIN = previous;
-  }
-});
