@@ -1,0 +1,4 @@
+node_modules/
+output/
+.setup-state.json
+.DS_Store

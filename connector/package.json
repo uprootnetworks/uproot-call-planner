@@ -1,0 +1,37 @@
+{
+  "name": "uproot-mcp",
+  "version": "1.1.0",
+  "description": "Local MCP connector for the Uproot Sales Assist demonstration",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "bin": {
+    "uproot-mcp": "src/server.js"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test --test-concurrency=1 tests/*.test.js"
+  },
+  "files": [
+    "src",
+    "scripts",
+    "examples",
+    "fixtures",
+    "README.md",
+    "PROMPT.txt",
+    "PROMPT-SLACK.txt",
+    "DEMO-GUIDE.md",
+    "package-lock.json"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "undici": "8.12.2",
+    "zod": "4.6.7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uprootnetworks/uproot-mcp.git"
+  }
+}
