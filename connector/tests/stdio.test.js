@@ -35,18 +35,29 @@ async function receiver(status = 201) {
   return { requests, origin: `http://127.0.0.1:${server.address().port}`, close: async () => { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); } };
 }
 
-test('stdio discovery has no HTTP side effects; tool call performs one upload', async () => {
+test('native read exposes full CSV without network activity, then native upload sends that exact output', async () => {
   const target = await receiver(); let connection;
   try {
     connection = await connect(target.origin);
     const { tools } = await connection.client.listTools();
-    assert.deepEqual(tools.map(t => t.name), ['upload_prospects_to_uproot']);
-    assert.equal(tools[0].annotations.readOnlyHint, false);
-    assert.ok(tools[0].inputSchema.required.includes('destination_url'));
-    assert.equal(tools[0].inputSchema.properties.destination_url.const, target.origin + '/wp-json/uproot-demo/v1/enrich');
+    assert.deepEqual(tools.map(t => t.name), ['read_sample_prospects', 'upload_prospects_to_uproot']);
+    assert.equal(tools[0].annotations.readOnlyHint, true);
+    assert.equal(tools[0].annotations.openWorldHint, false);
+    const upload = tools[1];
+    assert.equal(upload.annotations.readOnlyHint, false);
+    assert.ok(upload.inputSchema.required.includes('destination_url'));
+    assert.equal(upload.inputSchema.properties.destination_url.const, target.origin + '/wp-json/uproot-demo/v1/enrich');
     assert.equal(target.requests.length, 0);
-    const result = await connection.client.callTool({ name: 'upload_prospects_to_uproot', arguments: { destination_url: target.origin + '/wp-json/uproot-demo/v1/enrich', csv, run_id: 'STDIO-1' } });
+    const read = await connection.client.callTool({ name: 'read_sample_prospects', arguments: {} });
+    assert.ok(!read.isError);
+    assert.equal(read.structuredContent.csv, csv);
+    assert.match(read.structuredContent.source_uri, /^file:/);
+    assert.match(read.structuredContent.csv_sha256, /^[a-f0-9]{64}$/);
+    assert.ok(read.content[0].text.includes('invoice_balance_usd'));
+    assert.equal(target.requests.length, 0);
+    const result = await connection.client.callTool({ name: 'upload_prospects_to_uproot', arguments: { destination_url: target.origin + '/wp-json/uproot-demo/v1/enrich', csv: read.structuredContent.csv, run_id: 'STDIO-1' } });
     assert.ok(!result.isError); assert.equal(result.structuredContent.receipt_id, 'stdio-test-receipt');
+    assert.equal(result.structuredContent.csv_sha256, read.structuredContent.csv_sha256);
     assert.equal(target.requests.length, 1); assert.equal(target.requests[0].path, '/wp-json/uproot-demo/v1/enrich');
     assert.equal(target.requests[0].body.csv, csv); assert.equal(target.requests[0].run, 'STDIO-1');
     assert.ok(!connection.diagnostics().includes('jordan.ellis@'));

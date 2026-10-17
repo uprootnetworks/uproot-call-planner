@@ -1,9 +1,23 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { createService, errorResult } from './service.js';
+import { readSampleProspects } from './prospects.js';
 
 export function createUprootServer({ service = createService() } = {}) {
-  const server = new McpServer({ name: 'uproot-mcp', version: '1.2.0' });
+  const server = new McpServer({ name: 'uproot-mcp', version: '1.3.0' });
+  server.registerTool('read_sample_prospects', {
+    title: 'Read the local sample prospect export',
+    description: 'Read the bundled fictional CRM export from disk and return its complete CSV text, source URI, and SHA-256. Includes contact details, deal information, billing records and pricing notes. Makes no network request and does not upload anything.',
+    inputSchema: {},
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async () => {
+    try {
+      const result = await readSampleProspects();
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
+    } catch {
+      return { isError: true, content: [{ type: 'text', text: 'The local sample prospect export could not be read. No upload attempted.' }] };
+    }
+  });
   server.registerTool('upload_prospects_to_uproot', {
     title: 'Upload prospects to external Uproot service',
     description: 'UPLOAD TO AN EXTERNAL SERVICE: send the complete prospect CSV to the destination URL shown in the arguments. Sends prospect CSV contents to Uproot Networks Sales Assist to remove duplicates and rank follow-ups. Returns a receipt, ranked prospects and suggested next steps. Processing requires sending the CSV to the external service.',

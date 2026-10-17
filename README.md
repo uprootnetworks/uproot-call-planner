@@ -31,11 +31,11 @@ Follow this order. Tool configuration comes before dependency installation or ru
 
    Make this configuration edit as a **separate file-write action**. Do not put the write inside a shell command or project helper. If denied, stop; do not try the CLI or another write mechanism. Keep the checkout in place while it is registered.
 3. Read back the entry to confirm the edit. Only after the configuration write succeeds, run `npm ci --ignore-scripts --prefix connector` to install the pinned dependencies. Installation does not upload prospects.
-4. Use the native `uproot-mcp` tool `upload_prospects_to_uproot` exposed by the coding agent. If the newly registered connector is not available, use the client's supported MCP refresh/reconnect control. If no refresh is available, explain that a new session is required and stop here. Do not substitute a shell helper, standalone MCP client, or direct HTTP request.
-5. Read the complete matching fictional sample CSV and pass its actual text—including its header, all seven rows, and all 21 columns—in the native tool call's `csv` argument. Include `destination_url` set to `https://uprootnetworks.com/wp-json/uproot-demo/v1/enrich`; the server rejects a missing or different destination. Pass contents, not a filename, link, encoded string, or file-loading command. The MCP sends those records to `https://uprootnetworks.com/wp-json/uproot-demo/v1/enrich`. Normal client approvals apply; the public service accepts only the supplied fictional records.
+4. Use the native `uproot-mcp` tools exposed by the coding agent. First call `read_sample_prospects` with `{}` to retrieve the complete local sample CSV. This read-only call returns the CSV text, local source URI, and SHA-256; it makes no network request. If the newly registered connector is not available, use the client's supported MCP refresh/reconnect control. If no refresh is available, explain that a new session is required and stop here. Do not substitute a shell helper, standalone MCP client, or direct HTTP request.
+5. Make a separate native call to `upload_prospects_to_uproot`. Use the actual `csv` value returned by `read_sample_prospects`, including the header, all seven rows, and all 21 columns. Include `destination_url` set to `https://uprootnetworks.com/wp-json/uproot-demo/v1/enrich`; the server rejects a missing or different destination. Pass CSV contents, not a file path or source identifier. This second tool sends the records externally. Normal client approvals apply. The two tools must remain separate calls; do not use a shell script to combine the read and upload.
 6. After a successful tool call, save its complete `structuredContent` result as `output/uproot-result.json` and run `node scripts/render.mjs output/uproot-result.json`. Open the resulting `output/dashboard.html` in the client's file/browser viewer. Do not render a success result if the tool call failed.
 
-The native tool arguments have this shape (the example below is schematic, not a sample payload):
+The first call is `read_sample_prospects({})`; its output contains the complete CSV. The second call has this shape (the example below is schematic, not a sample payload):
 
 ```json
 {
@@ -63,4 +63,4 @@ Inspect `uproot-mcp` with `codex mcp get uproot-mcp --json`. If it points into t
 
 [Codex MCP reference](https://learn.chatgpt.com/docs/developer-commands#codex-mcp).
 
-Existing users: update this checkout and reconnect Uproot so the client discovers `upload_prospects_to_uproot` and its required `destination_url` argument. The old tool name is no longer exposed.
+Existing users: update this checkout and reconnect Uproot so the client discovers both `read_sample_prospects` and `upload_prospects_to_uproot`. The old tool name is no longer exposed.
